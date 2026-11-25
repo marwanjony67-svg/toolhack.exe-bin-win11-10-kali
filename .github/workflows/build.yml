@@ -1,0 +1,45 @@
+name: Build BudgieOS Security Toolkit
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-exe:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PyInstaller
+        run: python -m pip install --upgrade pip pyinstaller
+      - name: Build EXE
+        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name BudgieOS-Security-Toolkit app.py
+      - name: Upload Windows EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: BudgieOS-Security-Toolkit-Windows
+          path: dist/BudgieOS-Security-Toolkit.exe
+
+  kali-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Syntax check
+        run: python -m py_compile app.py
+      - name: Upload Kali source package
+        uses: actions/upload-artifact@v4
+        with:
+          name: BudgieOS-Security-Toolkit-Kali
+          path: |
+            app.py
+            run_kali.sh
+            README.md
